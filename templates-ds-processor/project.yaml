@@ -1,0 +1,60 @@
+specVersion: 1.0.0
+name: erc721_substrate
+version: 1.0.0
+runner:
+  node:
+    name: "@subql/node"
+    version: "*"
+  query:
+    name: "@subql/query"
+    version: "*"
+description: >-
+  A basic Frontier EVM example project with an event and call handler. Read more
+  about this at https://academy.subquery.network/build/substrate-evm.html. This
+  project can be use as a starting point for developing your SubQuery project
+repository: "https://github.com/subquery/tutorials-frontier-evm-starter"
+schema:
+  file: ./schema.graphql
+network:
+  # The genesis hash of the network (hash of block 0)
+  chainId: "0xfe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d"
+  # This endpoint must be a public non-pruned archive node
+  # Public nodes may be rate limited, which can affect indexing speed
+  # When developing your project we suggest getting a private API key
+  # You can get them from OnFinality for free https://app.onfinality.io
+  # https://documentation.onfinality.io/support/the-enhanced-api-service
+  endpoint: "https://rpc.api.moonbeam.network"
+#  dictionary: "https://api.subquery.network/sq/subquery/moonbeam-dictionary"
+  chaintypes:
+    file: ./dist/chaintypes.js
+dataSources:
+  - kind: substrate/FrontierEvm
+    startBlock: 171658
+    processor:
+      file: "./node_modules/@subql/frontier-evm-processor/dist/index.js"
+    mapping:
+      file: "./dist/index.js"
+      handlers:
+        - handler: handleTransaction
+          kind: substrate/FrontierEvmCall
+          filter:
+            function: "0x60806040"
+
+templates:
+  - name: ERC721
+    kind: substrate/FrontierEvm
+    processor:
+      file: "./node_modules/@subql/frontier-evm-processor/dist/index.js"
+    options:
+      abi: erc721
+    assets:
+      erc721:
+        file: './abis/erc721.json'
+    mapping:
+      file: "./dist/index.js"
+      handlers:
+        - handler: handleERC721
+          kind: substrate/FrontierEvmEvent
+          filter:
+            topics:
+              - Transfer(address, address, uint256)
