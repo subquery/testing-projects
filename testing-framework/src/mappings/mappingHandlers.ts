@@ -2,23 +2,20 @@ import {
   SubstrateExtrinsic,
   SubstrateEvent,
   SubstrateBlock,
-  LightSubstrateEvent,
 } from "@subql/types";
 import { Account, Transfer } from "../types";
 import { Balance } from "@polkadot/types/interfaces";
 import { decodeAddress } from "@polkadot/util-crypto";
 
-export async function handleEvent(event: LightSubstrateEvent): Promise<void> {
-  // export async function handleEvent(event: SubstrateEvent): Promise<void> {
-  
-  const caster = event as any
-  if(caster?.block?.timestamp) {
-    logger.warn(`timestamp: ${caster?.block?.timestamp}`)
-    logger.warn(`Event: ${JSON.stringify(caster, null, 2)}`)
-    logger.warn(`Block: ${JSON.stringify(event.block, null, 2)}`)
-    throw new Error('Not light block')
-  }
+export async function handleBlock(block: SubstrateBlock): Promise<void> {
+  // Do something with each block handler here
+}
 
+export async function handleCall(extrinsic: SubstrateExtrinsic): Promise<void> {
+  // Do something with a call handler here
+}
+
+export async function handleEvent(event: SubstrateEvent): Promise<void> {
   logger.info(
     `New transfer event found at block ${event.block.block.header.number.toString()}`
   );
@@ -41,6 +38,7 @@ export async function handleEvent(event: LightSubstrateEvent): Promise<void> {
   const transfer = Transfer.create({
     id: `${event.block.block.header.number.toNumber()}-${event.idx}`,
     blockNumber,
+    date: event.block.timestamp,
     fromId: fromAccount.id,
     toId: toAccount.id,
     amount: (amount as Balance).toBigInt(),
